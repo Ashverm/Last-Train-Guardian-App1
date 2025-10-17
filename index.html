@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>終電ガーディアン: 終電を逃さない</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* Custom Font: Inter (for English) and Noto Sans JP (for Japanese) */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Noto+Sans+JP:wght@100..900&display=swap');
+        
+        :root {
+            --color-bg: #0d1117; /* Very Dark Blue-Black */
+            --color-primary: #f97316; /* Bright Orange */
+            --color-secondary: #8b5cf6; /* Purple/Violet */
+            --color-card-bg: #161b22; /* Darker Card Background */
+            --color-text-light: #e5e7eb;
+            --color-text-muted: #9ca3af;
+        }
+
+        body {
+            /* Prioritize Noto Sans JP for Japanese text readability */
+            font-family: 'Inter', 'Noto Sans JP', sans-serif;
+            background-color: var(--color-bg);
+            color: var(--color-text-light);
+            scroll-behavior: smooth;
+        }
+        
+        .hero-bg {
+            /* Mimics the dark purple radial gradient seen in the screenshots */
+            background: radial-gradient(circle at 50% 0%, rgba(55, 6, 88, 0.4) 0%, var(--color-bg) 60%);
+        }
+
+        /* Utility for card hover effect */
+        .feature-card {
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        .feature-card:hover {
+            border-color: var(--color-secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(139, 92, 246, 0.2);
+        }
+
+        .cta-button {
+            transition: all 0.2s ease;
+        }
+        .cta-button:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+        
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        /* Timeline styles */
+        .timeline {
+            position: relative;
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            width: 2px;
+            height: 100%;
+            background-color: rgba(139, 92, 246, 0.5); /* Purple line */
+            transform: translateX(-50%);
+        }
+        @media (max-width: 767px) {
+            .timeline::before {
+                left: 20px; /* Shift line to the left on mobile */
+            }
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Header & Navigation -->
+    <header class="py-4 border-b border-gray-800 sticky top-0 z-50 bg-[var(--color-bg)]/90 backdrop-blur-sm">
+        <div class="container flex justify-between items-center">
+            <a href="#" class="flex items-center space-x-2">
+                <i data-lucide="train-front" class="w-6 h-6 text-white"></i>
+                <h1 class="text-xl font-extrabold tracking-tight text-white">
+                    Last Train Alert
+                </h1>
+            </a>
+            <div class="flex items-center space-x-6">
+                <!-- Enhanced Language Switch (More Visible) -->
+                <div class="flex p-1 bg-[var(--color-card-bg)] rounded-full border border-gray-700 shadow-md">
+                    <button id="lang-jp" data-lang="jp" class="lang-switch-btn bg-[var(--color-secondary)] text-white font-bold py-1.5 px-4 rounded-full text-xs transition duration-200 shadow-inner shadow-black/50">
+                        日本語
+                    </button>
+                    <button id="lang-en" data-lang="en" class="lang-switch-btn text-gray-400 font-medium py-1.5 px-4 rounded-full text-xs transition duration-200 hover:text-white">
+                        English
+                    </button>
+                </div>
+                <!-- Navigation Links -->
+                <nav class="hidden md:flex space-x-6 text-sm font-medium" id="main-nav">
+                    <a href="#features" class="nav-link text-[var(--color-text-muted)] hover:text-white transition" data-en="Features" data-jp="機能">機能</a>
+                    <a href="#howitworks" class="nav-link text-[var(--color-text-muted)] hover:text-white transition" data-en="How It Works" data-jp="使い方">使い方</a>
+                    <a href="#impact" class="nav-link text-[var(--color-text-muted)] hover:text-white transition" data-en="Impact" data-jp="影響">影響</a>
+                    <a href="#download" class="nav-link text-white bg-[var(--color-primary)] hover:bg-orange-500 py-1.5 px-4 rounded-full font-bold cta-button" data-en="Get Early Access" data-jp="ベータ版に登録">ベータ版に登録</a>
+                </nav>
+                <!-- Mobile Menu Placeholder -->
+                <button class="md:hidden p-2 rounded-md hover:bg-[var(--color-card-bg)] transition">
+                    <i data-lucide="menu" class="w-6 h-6 text-white"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section (Initial Content is Japanese) -->
+    <section class="hero-bg pt-20 pb-24 text-center">
+        <div class="container">
+            <p class="text-sm font-semibold uppercase text-[var(--color-primary)] tracking-widest mb-4">
+                <span id="hero-tagline">終電を二度と逃さない</span>
+            </p>
+            <h2 id="hero-title" class="text-5xl sm:text-7xl md:text-8xl font-extrabold tracking-tight leading-none mb-6">
+                高額な<span class="text-[var(--color-secondary)]">¥15,000</span>のタクシー代を回避
+            </h2>
+            <p id="hero-subtitle" class="text-lg md:text-xl font-light text-[var(--color-text-muted)] max-w-3xl mx-auto mb-10">
+                あなたの習慣を学習し、東京の終電前にリマインドするAI搭載アラート。安心して、お財布に優しく帰宅できます。
+            </p>
+            <div class="space-y-4 sm:space-y-0 sm:space-x-6 flex flex-col sm:flex-row justify-center">
+                <!-- CTA 1 (Orange) -->
+                <a href="#download" id="hero-cta-orange" class="bg-[var(--color-primary)] text-black font-bold py-3 px-8 rounded-full shadow-lg cta-button text-lg">
+                    ベータ版に登録
+                    <i data-lucide="arrow-right" class="inline-block w-5 h-5 ml-1"></i>
+                </a>
+                <!-- CTA 2 (See How It Works) - Now has an ID for localization -->
+                <a href="#howitworks" id="hero-cta-howitworks" class="bg-[var(--color-card-bg)] border border-gray-700 text-white font-medium py-3 px-8 rounded-full hover:bg-gray-800 transition text-lg">
+                    使い方を見る
+                </a>
+            </div>
+
+            <!-- Key Stats -->
+            <div class="mt-20 flex justify-center space-x-8 md:space-x-16">
+                <div>
+                    <p class="text-3xl font-bold text-[var(--color-secondary)]">¥15,000</p>
+                    <p class="text-sm text-[var(--color-text-muted)]" id="stat-1">タクシー代節約平均</p>
+                </div>
+                <div>
+                    <p class="text-3xl font-bold text-[var(--color-secondary)]">2.3M</p>
+                    <p class="text-sm text-[var(--color-text-muted)]" id="stat-2">リスクのある通勤者</p>
+                </div>
+                <div>
+                    <p class="text-3xl font-bold text-[var(--color-secondary)]">95%</p>
+                    <p class="text-sm text-[var(--color-text-muted)]" id="stat-3">アラート精度</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Intelligent Features Section (Static Text for simplicity) -->
+    <section id="features" class="py-20 bg-[var(--color-bg)]">
+        <div class="container text-center">
+            <h3 class="text-3xl md:text-5xl font-extrabold mb-3 bg-clip-text text-transparent bg-gradient-to-r from-[var(--color-secondary)] to-[var(--color-primary)]">
+                Intelligent Features
+            </h3>
+            <p class="text-md text-[var(--color-text-muted)] max-w-2xl mx-auto mb-16">
+                Powered by AI that understands you and the complexity of Tokyo's transit system.
+            </p>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Feature 1: AI Learning -->
+                <div class="p-6 feature-card rounded-xl bg-[var(--color-card-bg)] text-left">
+                    <i data-lucide="brain" class="w-7 h-7 text-[var(--color-secondary)] mb-3"></i>
+                    <p class="font-bold text-lg mb-1">AI Learning</p>
+                    <p class="text-sm text-[var(--color-text-muted)]">
+                        Learns your habits - typical venue duration, departure patterns, and response rates to optimize reminder timing.
+                    </p>
+                </div>
+                <!-- Feature 2: GPS Intelligence -->
+                <div class="p-6 feature-card rounded-xl bg-[var(--color-card-bg)] text-left">
+                    <i data-lucide="map-pin" class="w-7 h-7 text-[var(--color-secondary)] mb-3"></i>
+                    <p class="font-bold text-lg mb-1">GPS Intelligence</p>
+                    <p class="text-sm text-[var(--color-text-muted)]">
+                        Calculates walking time to the nearest station, accounting for crowd speed and environmental complexity.
+                    </p>
+                </div>
+                <!-- Feature 3: Smart Alerts -->
+                <div class="p-6 feature-card rounded-xl bg-[var(--color-card-bg)] text-left">
+                    <i data-lucide="bell-ring" class="w-7 h-7 text-[var(--color-primary)] mb-3"></i>
+                    <p class="font-bold text-lg mb-1">Smart Alerts</p>
+                    <p class="text-sm text-[var(--color-text-muted)]">
+                        Escalates from gentle nudges to urgent, full-screen reminders based on your individual response patterns.
+                    </p>
+                </div>
+                <!-- Feature 4: Real-time Updates -->
+                <div class="p-6 feature-card rounded-xl bg-[var(--color-card-bg)] text-left">
+                    <i data-lucide="plug-zap" class="w-7 h-7 text-white mb-3"></i>
+                    <p class="font-bold text-lg mb-1">Real-time Updates</p>
+                    <p class="text-sm text-[var(--color-text-muted)]">
+                        Connects to JR East and Tokyo Metro APIs for live schedules and instant delay notifications.
+                    </p>
+                </div>
+                <!-- Feature 5: Multi-language -->
+                <div class="p-6 feature-card rounded-xl bg-[var(--color-card-bg)] text-left">
+                    <i data-lucide="languages" class="w-7 h-7 text-white mb-3"></i>
+                    <p class="font-bold text-lg mb-1">Multi-language</p>
+                    <p class="text-sm text-[var(--color-text-muted)]">
+                        Full support for Japanese, English, and other languages - perfect for international residents and tourists.
+                    </p>
+                </div>
+                <!-- Feature 6: Safety First -->
+                <div class="p-6 feature-card rounded-xl bg-[var(--color-card-bg)] text-left">
+                    <i data-lucide="shield" class="w-7 h-7 text-white mb-3"></i>
+                    <p class="font-bold text-lg mb-1">Safety First</p>
+                    <p class="text-sm text-[var(--color-text-muted)]">
+                        Reduces overnight street stays and ensures you get home safely, especially for vulnerable travelers.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section (Static Text for simplicity) -->
+    <section id="howitworks" class="py-20 bg-[var(--color-bg)]">
+        <div class="container text-center max-w-4xl">
+            <h3 class="text-3xl md:text-4xl font-bold mb-3" id="how-it-works-title">
+                How It Works
+            </h3>
+            <p class="text-md text-[var(--color-text-muted)] max-w-2xl mx-auto mb-16" id="how-it-works-subtitle">
+                Simple setup, intelligent automation, perfect timing.
+            </p>
+
+            <div class="timeline grid md:grid-cols-2 gap-10">
+                <!-- Step 1 -->
+                <div class="timeline-item md:col-span-2 relative text-left">
+                    <div class="md:flex md:items-start">
+                        <div class="hidden md:block w-1/2"></div> <!-- Spacer for large screens -->
+                        <div class="absolute md:relative left-3 md:left-auto md:w-1/2 flex items-center justify-center md:justify-start">
+                            <div class="w-8 h-8 rounded-full bg-[var(--color-card-bg)] border-2 border-[var(--color-secondary)] text-[var(--color-secondary)] flex items-center justify-center absolute left-1/2 -ml-4 md:static md:ml-0 md:mr-6 md:-translate-x-0 -translate-x-1/2">01</div>
+                            <div class="md:hidden ml-12">
+                                <p class="font-bold text-xl mb-1" data-en="Set Your Home Station" data-jp="ホーム駅を設定">ホーム駅を設定</p>
+                                <p class="text-sm text-[var(--color-text-muted)]" data-en="Tell us where you live and which train lines you use. One-time setup, no hassle." data-jp="お住まいの場所と利用する路線を教えてください。一度設定すれば、あとは簡単です。">お住まいの場所と利用する路線を教えてください。一度設定すれば、あとは簡単です。</p>
+                            </div>
+                        </div>
+                        <div class="md:w-1/2 md:order-first md:text-right md:pr-10 hidden md:block">
+                            <p class="font-bold text-xl mb-1" data-en="Set Your Home Station" data-jp="ホーム駅を設定">ホーム駅を設定</p>
+                            <p class="text-sm text-[var(--color-text-muted)]" data-en="Tell us where you live and which train lines you use. One-time setup, no hassle." data-jp="お住まいの場所と利用する路線を教えてください。一度設定すれば、あとは簡単です。">お住まいの場所と利用する路線を教えてください。一度設定すれば、あとは簡単です。</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="timeline-item md:col-span-2 relative text-left">
+                    <div class="md:flex md:items-start">
+                        <div class="absolute md:relative left-3 md:left-auto md:w-1/2 flex items-center justify-center md:justify-end">
+                            <div class="w-8 h-8 rounded-full bg-[var(--color-card-bg)] border-2 border-[var(--color-secondary)] text-[var(--color-secondary)] flex items-center justify-center absolute left-1/2 -ml-4 md:static md:ml-0 md:mr-6 md:-translate-x-0 -translate-x-1/2">02</div>
+                            <div class="md:hidden ml-12">
+                                <p class="font-bold text-xl mb-1" data-en="Go About Your Evening" data-jp="夜の時間を楽しむ">夜の時間を楽しむ</p>
+                                <p class="text-sm text-[var(--color-text-muted)]" data-en="Enjoy your nomikai, work late, or explore Tokyo's nightlife without constantly checking the time." data-jp="飲み会や残業、夜の東京観光を、時間を気にせず楽しんでください。">飲み会や残業、夜の東京観光を、時間を気にせず楽しんでください。</p>
+                            </div>
+                        </div>
+                        <div class="md:w-1/2 md:pl-10">
+                            <p class="font-bold text-xl mb-1" data-en="Go About Your Evening" data-jp="夜の時間を楽しむ">夜の時間を楽しむ</p>
+                            <p class="text-sm text-[var(--color-text-muted)]" data-en="Enjoy your nomikai, work late, or explore Tokyo's nightlife without constantly checking the time." data-jp="飲み会や残業、夜の東京観光を、時間を気にせず楽しんでください。">飲み会や残業、夜の東京観光を、時間を気にせず楽しんでください。</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="timeline-item md:col-span-2 relative text-left">
+                    <div class="md:flex md:items-start">
+                        <div class="hidden md:block w-1/2"></div> <!-- Spacer for large screens -->
+                        <div class="absolute md:relative left-3 md:left-auto md:w-1/2 flex items-center justify-center md:justify-start">
+                            <div class="w-8 h-8 rounded-full bg-[var(--color-card-bg)] border-2 border-[var(--color-secondary)] text-[var(--color-secondary)] flex items-center justify-center absolute left-1/2 -ml-4 md:static md:ml-0 md:mr-6 md:-translate-x-0 -translate-x-1/2">03</div>
+                            <div class="md:hidden ml-12">
+                                <p class="font-bold text-xl mb-1" data-en="Receive Smart Alerts" data-jp="スマートアラートを受け取る">スマートアラートを受け取る</p>
+                                <p class="text-sm text-[var(--color-text-muted)]" data-en="Get personalized, adaptive reminders based on your location, walking speed, and the AI's understanding of your behavior." data-jp="あなたの現在地、歩行速度、行動パターンをAIが理解し、パーソナライズされたリマインダーを受け取ります。">あなたの現在地、歩行速度、行動パターンをAIが理解し、パーソナライズされたリマインダーを受け取ります。</p>
+                            </div>
+                        </div>
+                        <div class="md:w-1/2 md:order-first md:text-right md:pr-10 hidden md:block">
+                            <p class="font-bold text-xl mb-1" data-en="Receive Smart Alerts" data-jp="スマートアラートを受け取る">スマートアラートを受け取る</p>
+                            <p class="text-sm text-[var(--color-text-muted)]" data-en="Get personalized, adaptive reminders based on your location, walking speed, and the AI's understanding of your behavior." data-jp="あなたの現在地、歩行速度、行動パターンをAIが理解し、パーソナライズされたリマインダーを受け取ります。">あなたの現在地、歩行速度、行動パターンをAIが理解し、パーソナライズされたリマインダーを受け取ります。</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 4 -->
+                <div class="timeline-item md:col-span-2 relative text-left">
+                    <div class="md:flex md:items-start">
+                        <div class="absolute md:relative left-3 md:left-auto md:w-1/2 flex items-center justify-center md:justify-end">
+                            <div class="w-8 h-8 rounded-full bg-[var(--color-card-bg)] border-2 border-[var(--color-secondary)] text-[var(--color-secondary)] flex items-center justify-center absolute left-1/2 -ml-4 md:static md:ml-0 md:mr-6 md:-translate-x-0 -translate-x-1/2">04</div>
+                            <div class="md:hidden ml-12">
+                                <p class="font-bold text-xl mb-1" data-en="Catch Your Train" data-jp="終電に間に合う">終電に間に合う</p>
+                                <p class="text-sm text-[var(--color-text-muted)]" data-en="Make it home safely without expensive taxis or overnight stays. The AI learns and improves with each trip." data-jp="高額なタクシー代や一夜の滞在なしで、安全に帰宅。AIは利用するたびに学習し、精度が向上します。">高額なタクシー代や一夜の滞在なしで、安全に帰宅。AIは利用するたびに学習し、精度が向上します。</p>
+                            </div>
+                        </div>
+                        <div class="md:w-1/2 md:pl-10">
+                            <p class="font-bold text-xl mb-1" data-en="Catch Your Train" data-jp="終電に間に合う">終電に間に合う</p>
+                            <p class="text-sm text-[var(--color-text-muted)]" data-en="Make it home safely without expensive taxis or overnight stays. The AI learns and improves with each trip." data-jp="高額なタクシー代や一夜の滞在なしで、安全に帰宅。AIは利用するたびに学習し、精度が向上します。">高額なタクシー代や一夜の滞在なしで、安全に帰宅。AIは利用するたびに学習し、精度が向上します。</p>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </section>
+    
+    <!-- Smart Alert & Real Impact Section (Static Text for simplicity) -->
+    <section id="impact" class="py-20 bg-[var(--color-card-bg)]">
+        <div class="container text-center max-w-4xl">
+            
+            <!-- Smart Alert System -->
+            <h3 class="text-3xl md:text-4xl font-bold mb-3">
+                Smart Alert System
+            </h3>
+            <p class="text-md text-[var(--color-text-muted)] max-w-2xl mx-auto mb-12">
+                Escalating reminders that adapt to your behavior - from gentle nudges to urgent warnings.
+            </p>
+
+            <div class="flex justify-center mb-20">
+                <!-- Mock App Alert -->
+                <div class="p-6 rounded-2xl bg-gray-900 border border-gray-700 shadow-2xl w-full max-w-sm">
+                    <div class="text-sm text-gray-400 mb-4 flex justify-between">
+                        <span>23:25</span>
+                        <i data-lucide="signal" class="w-4 h-4"></i>
+                    </div>
+                    <div class="p-4 bg-[var(--color-bg)] rounded-xl border border-[var(--color-secondary)]">
+                        <div class="flex items-center space-x-3 mb-3">
+                            <i data-lucide="alarm-clock" class="w-6 h-6 text-[var(--color-secondary)]"></i>
+                            <p class="font-bold text-xl text-[var(--color-secondary)]">Last Train Alert</p>
+                        </div>
+                        <p class="text-sm text-white mb-2">Your last train leaves in <span class="font-bold text-[var(--color-primary)]">45 min</span>.</p>
+                        <ul class="text-xs text-[var(--color-text-muted)] space-y-1">
+                            <li><i data-lucide="map-pin" class="inline w-3 h-3 mr-1"></i> Udagawa Station</li>
+                            <li><i data-lucide="walk" class="inline w-3 h-3 mr-1"></i> 8 min walk from current location</li>
+                        </ul>
+                        <div class="flex justify-between mt-4 space-x-2">
+                            <button class="flex-1 bg-[var(--color-primary)] text-black font-semibold text-sm py-2 rounded-lg hover:bg-orange-500 transition">Show Route</button>
+                            <button class="flex-1 text-sm py-2 rounded-lg border border-gray-600 hover:bg-gray-700 transition text-gray-300">Snooze</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Real Impact (Static Text for simplicity) -->
+            <h3 class="text-3xl md:text-4xl font-bold mb-3">
+                Real Impact
+            </h3>
+            <p class="text-md text-[var(--color-text-muted)] max-w-2xl mx-auto mb-12">
+                Beyond convenience - transforming lives and communities.
+            </p>
+
+            <div class="grid md:grid-cols-2 gap-6 text-left">
+                <!-- Impact 1: Financial Relief -->
+                <div class="p-6 rounded-xl bg-[var(--color-bg)] border border-gray-700 feature-card">
+                    <div class="flex items-center space-x-3">
+                        <i data-lucide="wallet" class="w-6 h-6 text-[var(--color-primary)]"></i>
+                        <p class="font-bold text-xl text-[var(--color-primary)]">Financial Relief</p>
+                    </div>
+                    <p class="text-sm text-[var(--color-text-muted)] mt-2">
+                        **¥5,000-15,000** saved per avoided late-night taxi ride. Significantly reduces monthly commuting costs.
+                    </p>
+                </div>
+                <!-- Impact 2: Safety & Wellbeing -->
+                <div class="p-6 rounded-xl bg-[var(--color-bg)] border border-gray-700 feature-card">
+                    <div class="flex items-center space-x-3">
+                        <i data-lucide="heart" class="w-6 h-6 text-[var(--color-secondary)]"></i>
+                        <p class="font-bold text-xl text-[var(--color-secondary)]">Safety & Wellbeing</p>
+                    </div>
+                    <p class="text-sm text-[var(--color-text-muted)] mt-2">
+                        Reduces late-night stress and ensures proper rest for a productive next day.
+                    </p>
+                </div>
+                <!-- Impact 3: Cultural Integration -->
+                <div class="p-6 rounded-xl bg-[var(--color-bg)] border border-gray-700 feature-card">
+                    <div class="flex items-center space-x-3">
+                        <i data-lucide="users" class="w-6 h-6 text-white"></i>
+                        <p class="font-bold text-xl text-white">Cultural Integration</p>
+                    </div>
+                    <p class="text-sm text-[var(--color-text-muted)] mt-2">
+                        Enables foreigners to fully participate in Japanese social culture without transport anxiety.
+                    </p>
+                </div>
+                <!-- Impact 4: Global City Reputation -->
+                <div class="p-6 rounded-xl bg-[var(--color-bg)] border border-gray-700 feature-card">
+                    <div class="flex items-center space-x-3">
+                        <i data-lucide="globe" class="w-6 h-6 text-white"></i>
+                        <p class="font-bold text-xl text-white">Global City Reputation</p>
+                    </p>
+                    <p class="text-sm text-[var(--color-text-muted)] mt-2">
+                        Enhances Tokyo's image as a welcoming, accessible international metropolis for all visitors.
+                    </p>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+
+    <!-- CTA / Download Section (Static Text for simplicity) -->
+    <section id="download" class="py-20 bg-[var(--color-bg)] border-t border-gray-800">
+        <div class="container text-center max-w-4xl">
+            <h3 class="text-4xl md:text-5xl font-extrabold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-[var(--color-secondary)] to-[var(--color-primary)]" id="download-title">
+                Never Miss Your Last Train Again
+            </h3>
+            <p class="text-lg text-[var(--color-text-muted)] max-w-2xl mx-auto mb-8" id="download-subtitle">
+                Join the waitlist for early access. Be among the first to experience AI-powered transit alerts designed for Tokyo.
+            </p>
+            
+            <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4 max-w-md mx-auto">
+                <input type="email" placeholder="your.email@example.com" class="flex-1 bg-[var(--color-card-bg)] border border-gray-700 text-white p-3 rounded-full focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] transition" />
+                <!-- This button now has the ID "download-cta" -->
+                <button id="download-cta" class="bg-[var(--color-primary)] text-black font-bold py-3 px-6 rounded-full cta-button">
+                    Get Early Access
+                    <i data-lucide="arrow-right" class="inline-block w-5 h-5 ml-1"></i>
+                </button>
+            </div>
+            <p class="text-xs text-gray-600 mt-2" id="download-privacy">No spam, ever. We respect your privacy.</p>
+            
+            <div class="mt-16 grid md:grid-cols-3 gap-8 text-center">
+                <div class="p-4">
+                    <i data-lucide="key" class="w-6 h-6 text-[var(--color-secondary)] mx-auto mb-2"></i>
+                    <p class="font-bold text-lg">Free Beta Access</p>
+                    <p class="text-sm text-[var(--color-text-muted)]">Be the first to try it.</p>
+                </div>
+                <div class="p-4">
+                    <i data-lucide="message-square" class="w-6 h-6 text-[var(--color-secondary)] mx-auto mb-2"></i>
+                    <p class="font-bold text-lg">Priority Support</p>
+                    <p class="text-sm text-[var(--color-text-muted)]">Direct line to our team.</p>
+                </div>
+                <div class="p-4">
+                    <i data-lucide="tag" class="w-6 h-6 text-[var(--color-secondary)] mx-auto mb-2"></i>
+                    <p class="font-bold text-lg">Lifetime Discount</p>
+                    <p class="text-sm text-[var(--color-text-muted)]">Early adopter pricing.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer (Static Text for simplicity) -->
+    <footer class="py-10 bg-[#06080c] border-t border-gray-800">
+        <div class="container grid md:grid-cols-4 gap-8 text-left">
+            <div class="col-span-1">
+                <a href="#" class="flex items-center space-x-2 mb-4">
+                    <i data-lucide="train-front" class="w-6 h-6 text-[var(--color-primary)]"></i>
+                    <h1 class="text-xl font-extrabold tracking-tight text-white">
+                        Last Train Alert
+                    </h1>
+                </a>
+                <p class="text-sm text-[var(--color-text-muted)]">
+                    AI-powered transit reminders designed for Tokyo's commuters. Never miss your last train, never pay for expensive taxis.
+                </p>
+            </div>
+            
+            <div class="col-span-1">
+                <p class="font-bold text-white mb-3">Product</p>
+                <ul class="space-y-2 text-sm text-[var(--color-text-muted)]">
+                    <li><a href="#features" class="hover:text-white transition">Features</a></li>
+                    <li><a href="#howitworks" class="hover:text-white transition">How It Works</a></li>
+                    <li><a href="#" class="hover:text-white transition">Pricing</a></li>
+                    <li><a href="#" class="hover:text-white transition">FAQ</a></li>
+                </ul>
+            </div>
+            
+            <div class="col-span-1">
+                <p class="font-bold text-white mb-3">Company</p>
+                <ul class="space-y-2 text-sm text-[var(--color-text-muted)]">
+                    <li><a href="#" class="hover:text-white transition">About Us</a></li>
+                    <li><a href="#" class="hover:text-white transition">Contact</a></li>
+                    <li><a href="#" class="hover:text-white transition">Privacy</a></li>
+                    <li><a href="#" class="hover:text-white transition">Terms</a></li>
+                </ul>
+            </div>
+
+            <div class="col-span-1">
+                <p class="font-bold text-white mb-3">Statistics</p>
+                <div class="grid grid-cols-2 gap-4 text-sm text-[var(--color-text-muted)]">
+                    <div>
+                        <p class="text-xl font-bold text-white">500K+</p>
+                        <p>Foreign Residents</p>
+                    </div>
+                    <div>
+                        <p class="text-xl font-bold text-white">24/7</p>
+                        <p>AI Monitoring</p>
+                    </div>
+                    <div>
+                        <p class="text-xl font-bold text-white">2.3M</p>
+                        <p>Daily Commuters</p>
+                    </div>
+                    <div>
+                        <p class="text-xl font-bold text-white">95%</p>
+                        <p>Success Rate</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="container text-center text-xs text-gray-700 mt-10">
+            &copy; 2025 Last Train Guardian Project. All rights reserved.
+        </div>
+    </footer>
+
+    <!-- JavaScript for Language Toggle and Icon Initialization -->
+    <script>
+        // Data containing all localized strings
+        const content = {
+            en: {
+                tagline: "Never Miss Your Last Train Again",
+                title: "Avoid <span class='text-[var(--color-secondary)]'>¥15,000</span> Taxi Rides Home",
+                subtitle: "AI-powered alerts that learn your habits and remind you before Tokyo's last trains depart. Get home safely without breaking the bank.",
+                cta_button: "Get Early Access", 
+                how_it_works_cta: "See How It Works", // New: See How It Works Button Text
+                stats: { // New: Statistics text
+                    stat1: "Average taxi cost saved", 
+                    stat2: "Tokyo commuters at risk", 
+                    stat3: "Alert accuracy rate"
+                },
+                nav: {
+                    features: "Features", howitworks: "How It Works", impact: "Impact", cta: "Get Early Access"
+                },
+                how_it_works_title: "How It Works",
+                how_it_works_subtitle: "Simple setup, intelligent automation, perfect timing.",
+                download_title: "Never Miss Your Last Train Again",
+                download_subtitle: "Join the waitlist for early access. Be among the first to experience AI-powered transit alerts designed for Tokyo.",
+                download_privacy: "No spam, ever. We respect your privacy."
+            },
+            jp: {
+                tagline: "終電を二度と逃さない",
+                title: "高額な<span class='text-[var(--color-secondary)]'>¥15,000</span>のタクシー代を回避",
+                subtitle: "あなたの習慣を学習し、東京の終電前にリマインドするAI搭載アラート。安心して、お財布に優しく帰宅できます。",
+                cta_button: "ベータ版に登録", 
+                how_it_works_cta: "使い方を見る", // New: See How It Works Button Text
+                stats: { // New: Statistics text
+                    stat1: "タクシー代節約平均", 
+                    stat2: "リスクのある通勤者", 
+                    stat3: "アラート精度"
+                },
+                nav: {
+                    features: "機能", howitworks: "使い方", impact: "影響", cta: "ベータ版に登録"
+                },
+                how_it_works_title: "使い方",
+                how_it_works_subtitle: "簡単な設定、インテリジェントな自動化、完璧なタイミング。",
+                download_title: "二度と終電を逃しません",
+                download_subtitle: "早期アクセスにご登録ください。東京の通勤者向けに設計されたAI搭載の交通アラートをいち早く体験してください。",
+                download_privacy: "スパムは一切ありません。プライバシーを尊重します。"
+            }
+        };
+
+        const langJpBtn = document.getElementById('lang-jp');
+        const langEnBtn = document.getElementById('lang-en');
+        const heroTagline = document.getElementById('hero-tagline');
+        const heroTitle = document.getElementById('hero-title');
+        const heroSubtitle = document.getElementById('hero-subtitle');
+        const heroCtaOrange = document.getElementById('hero-cta-orange'); // Orange CTA
+        const heroCtaHowItWorks = document.getElementById('hero-cta-howitworks'); // How It Works CTA
+        const downloadCtaButton = document.getElementById('download-cta'); 
+        const navLinks = document.querySelectorAll('.nav-link');
+        const localizableBlocks = document.querySelectorAll('[data-en][data-jp]');
+        const howItWorksTitle = document.getElementById('how-it-works-title');
+        const howItWorksSubtitle = document.getElementById('how-it-works-subtitle');
+        const downloadTitle = document.getElementById('download-title');
+        const downloadSubtitle = document.getElementById('download-subtitle');
+        const downloadPrivacy = document.getElementById('download-privacy');
+        
+        // New: Stat elements
+        const stat1 = document.getElementById('stat-1');
+        const stat2 = document.getElementById('stat-2');
+        const stat3 = document.getElementById('stat-3');
+
+
+        function updateContent(lang) {
+            const data = content[lang];
+            const isJapanese = lang === 'jp';
+
+            // 1. Update Hero Content
+            heroTagline.textContent = data.tagline;
+            heroTitle.innerHTML = data.title; 
+            heroSubtitle.textContent = data.subtitle;
+
+            // 2. Update Hero CTA Buttons
+            heroCtaOrange.innerHTML = `${data.cta_button} <i data-lucide="arrow-right" class="inline-block w-5 h-5 ml-1"></i>`;
+            heroCtaHowItWorks.textContent = data.how_it_works_cta; // Fixed this one
+            
+            // 3. Update Statistics Text (The main fix!)
+            stat1.textContent = data.stats.stat1;
+            stat2.textContent = data.stats.stat2;
+            stat3.textContent = data.stats.stat3;
+
+
+            // 4. Update Nav Links and Header CTA
+            navLinks.forEach(link => {
+                const key = link.getAttribute('data-jp') === '機能' ? 'features' : 
+                            link.getAttribute('data-jp') === '使い方' ? 'howitworks' : 
+                            link.getAttribute('data-jp') === '影響' ? 'impact' : 'cta';
+                link.textContent = data.nav[key];
+                if (link.getAttribute('href') === '#download') {
+                    link.innerHTML = `${data.nav.cta} ${isJapanese ? '' : ''}`;
+                }
+            });
+            
+            // 5. Update the Download Section CTA Button
+            downloadCtaButton.innerHTML = `${data.cta_button} <i data-lucide="arrow-right" class="inline-block w-5 h-5 ml-1"></i>`;
+            
+            // 6. Update other main text blocks
+            howItWorksTitle.textContent = data.how_it_works_title;
+            howItWorksSubtitle.textContent = data.how_it_works_subtitle;
+            downloadTitle.textContent = data.download_title;
+            downloadSubtitle.textContent = data.download_subtitle;
+            downloadPrivacy.textContent = data.download_privacy;
+
+            // 7. Update Timeline/Localizable Blocks (Using data attributes)
+            localizableBlocks.forEach(block => {
+                block.textContent = block.getAttribute(`data-${lang}`);
+            });
+
+            // 8. Update Language Switch Styling
+            if (isJapanese) {
+                langJpBtn.classList.add('bg-[var(--color-secondary)]', 'text-white', 'font-bold', 'shadow-inner', 'shadow-black/50');
+                langJpBtn.classList.remove('text-gray-400', 'font-medium', 'hover:text-white', 'bg-transparent');
+                
+                langEnBtn.classList.remove('bg-[var(--color-secondary)]', 'text-white', 'font-bold', 'shadow-inner', 'shadow-black/50');
+                langEnBtn.classList.add('text-gray-400', 'font-medium', 'hover:text-white', 'bg-transparent');
+            } else {
+                langEnBtn.classList.add('bg-[var(--color-secondary)]', 'text-white', 'font-bold', 'shadow-inner', 'shadow-black/50');
+                langEnBtn.classList.remove('text-gray-400', 'font-medium', 'hover:text-white', 'bg-transparent');
+
+                langJpBtn.classList.remove('bg-[var(--color-secondary)]', 'text-white', 'font-bold', 'shadow-inner', 'shadow-black/50');
+                langJpBtn.classList.add('text-gray-400', 'font-medium', 'hover:text-white', 'bg-transparent');
+            }
+            
+            // Re-render all Lucide icons after updating innerHTML
+            lucide.createIcons(); 
+        }
+
+        // Add listeners to both buttons
+        langJpBtn.addEventListener('click', () => updateContent('jp'));
+        langEnBtn.addEventListener('click', () => updateContent('en'));
+
+        // Initialize with Japanese content as default, and update button state
+        updateContent('jp');
+        
+        // Initialize Lucide Icons on load
+        lucide.createIcons();
+
+    </script>
+</body>
+</html>
